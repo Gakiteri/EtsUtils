@@ -16,7 +16,7 @@ public class MngConfig {
     public void load() {
 
         loadDb();
-
+/*
         // Load players playtime
         config.getMapList("players.playtime").forEach(set -> {
             set.forEach((player, time) -> {
@@ -29,7 +29,7 @@ public class MngConfig {
                 Variables.configSql.put((String) key, value);
             });
         });
-
+*/
     }
 
     /** LOAD DATABASE CONFIG **/
@@ -51,7 +51,7 @@ public class MngConfig {
 
 
     public void save() {
-
+/*
         // Add players playtime
         Variables.playerData.forEach((player, dataset) -> {
             config.set("players.playtime." + player, dataset.getTime());
@@ -59,7 +59,7 @@ public class MngConfig {
 
         // Saves to file
         plugin.saveConfig();
-
+*/
     }
 
 

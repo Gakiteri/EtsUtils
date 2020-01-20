@@ -1,5 +1,6 @@
 package net.gakiteri.etsutils;
 
+import net.gakiteri.etsutils.events.OnJoin;
 import net.gakiteri.etsutils.functions.MngConfig;
 import net.gakiteri.etsutils.functions.MngFile;
 import org.bukkit.Server;
@@ -19,7 +20,7 @@ public final class EtsUtils extends JavaPlugin {
 
 
         /** EVENT REGISTRATION **/
-        //pluginManager.registerEvents(new OnJoin(), this);
+        pluginManager.registerEvents(new OnJoin(), this);
 
 
         /** GET PLUGIN DIRECTORY **/
