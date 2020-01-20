@@ -1,0 +1,5 @@
+name: EtsUtils
+version: ${project.version}
+main: net.gakiteri.etsutils.EtsUtils
+api-version: 1.13
+authors: [Gakiteri]
