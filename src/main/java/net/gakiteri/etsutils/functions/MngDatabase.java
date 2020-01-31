@@ -2,10 +2,8 @@ package net.gakiteri.etsutils.functions;
 
 import net.gakiteri.etsutils.data.Database;
 import net.gakiteri.etsutils.data.PlayerData;
-import org.apache.commons.lang.CharSet;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.nio.charset.Charset;
 import java.sql.*;
 import java.util.UUID;
 
@@ -14,10 +12,10 @@ import static org.bukkit.Bukkit.getServer;
 
 public class MngDatabase {
 
-    private Connection connection;
-    private Statement statement;
+    private static Connection connection;
+    private static Statement statement;
 
-
+    /** CONNECTS TO DATABASE **/
     public BukkitRunnable asyncConnection = new BukkitRunnable() {
         @Override
         public void run() {
@@ -25,109 +23,90 @@ public class MngDatabase {
                 Class.forName("org.mariadb.jdbc.Driver");
                 connection = DriverManager.getConnection("jdbc:mariadb://" + Database.host+ ":" + Database.port + "/" + Database.database + "?user=" + Database.username); // + "&password=" + Database.password);
                 statement = connection.createStatement();
-
-                statement.executeUpdate("CREATE TABLE IF NOT EXISTS `players` (" +
-                        "`ID` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                        "`UUID` tinytext NOT NULL, " +
-                        "`username` tinytext NOT NULL, " +
-                        "`state` tinytext NOT NULL, " +
-                        "`rank` tinytext NOT NULL, " +
-                        "`balance` int(11) NOT NULL," +
-                        "`pvp` tinyint(1) NOT NULL " +
-                        ");");
-
-            } catch (SQLException | ClassNotFoundException e) {
-                getLogger().warning("Could not connect to database");
-                e.printStackTrace();
+                Database.canConnect = true;
+            } catch (Exception e) {
+                onError(e);
             }
         }
     };
-/*
-    public void initConnection() throws SQLException, ClassNotFoundException {
-        //Class.forName("com.mysql.jdbc.Driver");
-        Class.forName("org.mariadb.jdbc.Driver");
-        connection = DriverManager.getConnection("jdbc:mariadb://" + Database.host+ ":" + Database.port + "/" + Database.database + "?user=" + Database.username); // + "&password=" + Database.password);
-        statement = connection.createStatement();
-    }
-*/
-/*
-    public void initDatabase() throws SQLException {
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS `players` (\n" +
-                "  `id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,\n" +
-                "  `uuid` int NOT NULL,\n" +
-                "  `username` int NOT NULL,\n" +
-                "  `status` int NOT NULL,\n" +
-                "  `pvp` int NOT NULL,\n" +
-                "  `role` varchar(50) NOT NULL,\n" +
-                "  `lastTime` datetime NOT NULL,\n" +
-                "  `time_online` int NOT NULL\n" +
-                "  `balance` float NOT NULL \n" +
-                ") ENGINE='MariaDB';");
-    }
-*/
-/*
-    private void makeConnection() {
+
+    /** INITIALISE TABLES **/
+    public void initTables() {
         try {
-            new MngDatabase().initConnection();
-        } catch (SQLException | ClassNotFoundException e) {
-            getLogger().warning("Could not connect to database");
-            e.printStackTrace();
-        }
-    }
-*/
-    /** PLAYER QUERIES **/
-    public void updatePlayer(PlayerData player) {
-
-        try {
-
-            String online = player.getOnline() ? "on" : "off";
-            String pvp = player.getPvp() ? "1" : "0";
-
-            getServer().broadcastMessage("database access 3");
-            statement.executeUpdate("UPDATE players SET "
-                    + "username = '" + player.getName()
-                    + "', state = " + online
-                    + ", rank = '" + player.getRank()
-                    + "', balance = " + player.getBalance()
-                    + ", pvp = " + pvp
-                    + " WHERE UUID = " + player.getUuid().toString() +";");
-
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS `players` (" +
+                    "`ID` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                    "`UUID` tinytext NOT NULL, " +
+                    "`username` tinytext NOT NULL, " +
+                    "`state` tinytext NOT NULL, " +
+                    "`rank` tinytext NOT NULL, " +
+                    "`balance` int(11) NOT NULL," +
+                    "`pvp` tinyint(1) NOT NULL " +
+                    ");");
         } catch (Exception e) {
-            getLogger().warning("Could not update database");
+            onError(e);
         }
     }
-    public PlayerData getPlayer(UUID uuid) throws SQLException {
+
+    /** ERROR ON DB CONNECTION **/
+    private void onError(Exception e) {
+        Database.canConnect = false;
+        getLogger().warning("Could not connect/interact to database successfully");
+        e.printStackTrace();
+    }
+
+    /** PLAYER QUERIES **/
+    public PlayerData getPlayer(UUID uuid) {
 
         PlayerData playerData = new PlayerData();
         playerData.setUuid(uuid);
 
         try {
-            getServer().broadcastMessage("database access 1");
-            ResultSet result = statement.executeQuery("SELECT * FROM players WHERE UUID = " + uuid.toString() + ";");
+            ResultSet result = statement.executeQuery("SELECT * FROM players WHERE UUID = '" + uuid.toString() + "';");
 
-            getServer().broadcastMessage("post error");
-
-            result.next();
-            playerData.setName(result.getString("username"));
-            playerData.setOnline(result.getBoolean("state"));
-            playerData.setRank(result.getString("rank"));
-            playerData.setBalance(result.getInt("balance"));
-            playerData.setPvp(result.getBoolean("pvp"));
-        } catch (Exception e) {
-            e.printStackTrace();
-
-            String name = getServer().getPlayer(uuid).getName();
-            getServer().broadcastMessage("database access 2");
-            try {
-                statement.executeUpdate("INSERT INTO players (UUID, username, state, rank, balance, pvp) VALUES ('" + uuid.toString() + "', '" + name + "', 'off', 'rank', '100', '0');");
-            } catch (Exception ex) {
-                getLogger().warning("Could not insert to database");
-                ex.printStackTrace();
+            if (result.next()) {
+                playerData.setName(result.getString("username"));
+                playerData.setState(result.getString("state"));
+                playerData.setRank(result.getString("rank"));
+                playerData.setBalance(result.getInt("balance"));
+                playerData.setPvp(result.getBoolean("pvp"));
+            } else {
+                String name = getServer().getPlayer(uuid).getName();
+                statement.executeUpdate("INSERT INTO players " +
+                        "(UUID, username, state, rank, balance, pvp) VALUES"
+                        + " ('" + uuid.toString()
+                        + "','" + name
+                        + "','" + playerData.getState()
+                        + "','" + playerData.getRank()
+                        + "','" + playerData.getBalance()
+                        + "','" + playerData.getPvp()
+                        + ");");
             }
 
+        } catch (Exception e) {
+            onError(e);
         }
 
         return playerData;
+    }
+
+
+    public void updatePlayer(PlayerData player) {
+
+        String pvp = player.getPvp() ? "1" : "0";
+
+        try {
+            statement.executeUpdate("UPDATE players SET "
+                    + "username = '" + player.getName()
+                    + "', state = '" + player.getState()
+                    + "', rank = '" + player.getRank()
+                    + "', balance = " + player.getBalance()
+                    + ", pvp = " + pvp
+                    + " WHERE UUID = '" + player.getUuid().toString()
+                    + "';");
+
+        } catch (Exception e) {
+            onError(e);
+        }
     }
 
 

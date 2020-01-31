@@ -3,6 +3,7 @@ package net.gakiteri.etsutils.data;
 public class Database {
 
     public static Boolean active;
+    public static boolean canConnect;
 
     public static String host;
     public static int port;
@@ -11,6 +12,7 @@ public class Database {
     public static String password;
 
     public static void setNull() {
+        canConnect = false;
         host = "";
         port = 0;
         database = "";

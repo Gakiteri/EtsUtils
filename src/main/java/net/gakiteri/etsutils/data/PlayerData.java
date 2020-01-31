@@ -6,7 +6,7 @@ public class PlayerData {
 
     private UUID uuid;
     private String name;
-    private boolean online;
+    private String state;
     private String rank;
     private int balance;
     private boolean pvp;
@@ -15,7 +15,7 @@ public class PlayerData {
     public PlayerData() {
         uuid = null;
         name = "";
-        online = false;
+        state = "off";
         rank = "";
         balance = 0;
         pvp = false;
@@ -39,12 +39,12 @@ public class PlayerData {
     }
 
 
-    /** ONLINE **/
-    public void setOnline(boolean val) {
-        online = val;
+    /** STATE **/
+    public void setState(String val) {
+        state = val;
     }
-    public boolean getOnline() {
-        return online;
+    public String getState() {
+        return state;
     }
 
 

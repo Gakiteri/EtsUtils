@@ -1,5 +1,6 @@
 package net.gakiteri.etsutils;
 
+import net.gakiteri.etsutils.data.Database;
 import net.gakiteri.etsutils.events.OnJoin;
 import net.gakiteri.etsutils.functions.MngConfig;
 import net.gakiteri.etsutils.functions.MngDatabase;
@@ -43,7 +44,13 @@ public final class EtsUtils extends JavaPlugin {
         new MngConfig().load();
 
         /** GET DATABASE **/
-        new MngDatabase().asyncConnection.runTaskAsynchronously(this);
+        if (Database.active) {
+            new MngDatabase().asyncConnection.runTaskAsynchronously(this);
+            if (Database.canConnect) {
+                new MngDatabase().initTables();
+            }
+        }
+
 
 
 

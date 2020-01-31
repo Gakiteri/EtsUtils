@@ -11,5 +11,4 @@ public class Variables {
     public static File dirPlugin;
     public static FileConfiguration config;
 
-
 }
