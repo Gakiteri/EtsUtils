@@ -1,5 +1,11 @@
 name: EtsUtils
 version: ${project.version}
 main: net.gakiteri.etsutils.EtsUtils
-api-version: 1.13
+api-version: 1.15
 authors: [Gakiteri]
+description: Multipurpose plugin by ExampleText Studios
+commands:
+  rank:
+    description: Manage ranks (permissions)
+    usage: /<command> (list|add|remove|<player>) [<name>] [<rank level>] [<display name>]
+

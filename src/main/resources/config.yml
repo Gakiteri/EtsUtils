@@ -8,3 +8,15 @@ database:
   database: "etsUtils"
   username: "etsutils"
   password: "abJ-n5PBGdy4"
+
+ranks:
+  100:
+    - Admin
+  200:
+    - Mod
+  300:
+    - Builder
+  400:
+    - Member
+  500:
+    - Guest

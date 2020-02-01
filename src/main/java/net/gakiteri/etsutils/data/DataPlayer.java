@@ -2,7 +2,7 @@ package net.gakiteri.etsutils.data;
 
 import java.util.UUID;
 
-public class PlayerData {
+public class DataPlayer {
 
     private UUID uuid;
     private String name;
@@ -12,7 +12,7 @@ public class PlayerData {
     private boolean pvp;
 
     /** INITIALISE WITH DEFAULT VALUES **/
-    public PlayerData() {
+    public DataPlayer() {
         uuid = null;
         name = "";
         state = "off";

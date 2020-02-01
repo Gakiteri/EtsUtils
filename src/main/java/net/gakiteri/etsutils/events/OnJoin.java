@@ -1,7 +1,7 @@
 package net.gakiteri.etsutils.events;
 
 import net.gakiteri.etsutils.data.Database;
-import net.gakiteri.etsutils.data.PlayerData;
+import net.gakiteri.etsutils.data.DataPlayer;
 import net.gakiteri.etsutils.functions.MngDatabase;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -20,12 +20,12 @@ public class OnJoin implements Listener {
         UUID uuid = player.getUniqueId();
 
         if (Database.canConnect) {
-            PlayerData playerData = new MngDatabase().getPlayer(uuid);
+            DataPlayer dataPlayer = new MngDatabase().getPlayer(uuid);
 
-            playerData.setName(getServer().getPlayer(uuid).getName());
-            playerData.setState("on");
+            dataPlayer.setName(getServer().getPlayer(uuid).getName());
+            dataPlayer.setState("on");
 
-            new MngDatabase().updatePlayer(playerData);
+            new MngDatabase().updatePlayer(dataPlayer);
         }
 
         getServer().broadcastMessage(ChatColor.GOLD + "Welcome " + player.getName());
