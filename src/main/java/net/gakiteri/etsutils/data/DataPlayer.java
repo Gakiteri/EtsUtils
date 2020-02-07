@@ -7,7 +7,7 @@ public class DataPlayer {
     private UUID uuid;
     private String name;
     private String state;
-    private String rank;
+    private DataRank rank;
     private int balance;
     private boolean pvp;
 
@@ -16,7 +16,7 @@ public class DataPlayer {
         uuid = null;
         name = "";
         state = "off";
-        rank = "";
+        rank = new DataRank();
         balance = 0;
         pvp = false;
     }
@@ -49,10 +49,10 @@ public class DataPlayer {
 
 
     /** RANK **/
-    public void setRank(String val) {
+    public void setRank(DataRank val) {
         rank = val;
     }
-    public String getRank() {
+    public DataRank getRank() {
         return rank;
     }
 

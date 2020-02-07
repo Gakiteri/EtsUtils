@@ -8,4 +8,8 @@ commands:
   rank:
     description: Manage ranks (permissions)
     usage: /<command> (list|<player>|add|remove|modify) [<name>] [<rank level>] [<display name>]
+  pvp:
+    description: Change PvP status for a player
+    usage: /<command> (on|off|get|set) [<player>] [on|off]
+
 

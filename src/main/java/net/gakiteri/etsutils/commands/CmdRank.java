@@ -2,6 +2,7 @@ package net.gakiteri.etsutils.commands;
 
 import net.gakiteri.etsutils.data.DataPlayer;
 import net.gakiteri.etsutils.data.DataRank;
+import net.gakiteri.etsutils.data.Database;
 import net.gakiteri.etsutils.functions.MngDatabase;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -32,8 +33,10 @@ public class CmdRank implements CommandExecutor {
             return true;
         } else if (args.length == 1) {
             if (args[0].equals("list")) {
-                ArrayList<DataRank> rankList = new MngDatabase().getRankList();
-
+                ArrayList<DataRank> rankList = new ArrayList<>();
+                if (Database.canConnect) {
+                    rankList = new MngDatabase().getRankList();
+                }
                 if (!rankList.isEmpty()) {
                     sender.sendMessage(ChatColor.GOLD + "Available ranks:");
                     rankList.forEach(i -> {
@@ -45,67 +48,72 @@ public class CmdRank implements CommandExecutor {
                 } else {
                     sender.sendMessage(ChatColor.RED + "There are no ranks");
                 }
-
                 return true;
             } else {
                 String playerName = args[0];
-                if (new MngDatabase().hasPlayer(playerName)) {
-                    DataPlayer dataPlayer = new MngDatabase().getPlayer(playerName);
-
-                    if (new MngDatabase().hasRank(dataPlayer.getRank())) {
-                        DataRank dataRank = new MngDatabase().getRank(dataPlayer.getRank());
-                        sender.sendMessage(ChatColor.GREEN + playerName + "has the rank " + dataRank.getName() + " with the permission level of " + dataRank.getLevel());
+                if (Database.canConnect) {
+                    if (new MngDatabase().hasPlayer(playerName)) {
+                        DataPlayer dataPlayer = new MngDatabase().getPlayer(playerName);
+                        if (new MngDatabase().hasRank(dataPlayer)) {
+                            DataRank dataRank = new MngDatabase().getRank(dataPlayer);
+                            sender.sendMessage(ChatColor.GREEN + playerName + "has the rank " + dataRank.getName() + " with the permission level of " + dataRank.getLevel());
+                        } else {
+                            sender.sendMessage(ChatColor.RED + playerName + " has no rank");
+                        }
+                        return true;
                     } else {
-                        sender.sendMessage(ChatColor.RED + playerName + " has no rank");
+                        sender.sendMessage(ChatColor.RED + "The player " + playerName + " does not exist");
                     }
-                    return true;
-                } else {
-                    sender.sendMessage(ChatColor.RED + "The player " + playerName + " does not exist");
                 }
             }
         } else if (args.length == 2) {
             if (args[0].equals("remove")) {
-                if (new MngDatabase().removeRank(args[1])) {
-                    sender.sendMessage(ChatColor.GREEN + "Rank successfully deleted");
-                } else {
-                    sender.sendMessage(ChatColor.RED + "Rank could not be deleted");
+                if (Database.canConnect) {
+                    if (new MngDatabase().removeRank(args[1])) {
+                        sender.sendMessage(ChatColor.GREEN + "Rank successfully deleted");
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Rank could not be deleted");
+                    }
+                    return true;
                 }
-                return true;
             }
         } else if (args.length == 4) {
             if (args[0].equals("add")) {
-                DataRank rank = new DataRank();
-
-                rank.setLevel(Integer.parseInt(args[2]));
-                rank.setName(args[1]);
-                rank.setDisplay(args[3].replace("&&", "§"));
-
-                if (new MngDatabase().addRank(rank)) {
-                    sender.sendMessage(ChatColor.GREEN + "Rank successfully added");
-                } else {
-                    sender.sendMessage(ChatColor.RED + "Rank could not be added");
-                }
-                return true;
-            } else if (args[0].equals("modify")) {
-
-                String rankName = args[1];
-
-                if (new MngDatabase().hasRank(rankName)) {
-                    DataRank rank = new MngDatabase().getRank(rankName);
+                    DataRank rank = new DataRank();
 
                     rank.setLevel(Integer.parseInt(args[2]));
-                    rank.setName(rankName);
-                    rank.setDisplay(args[3].replace("&&", "§"));
+                    rank.setName(args[1]);
+                    rank.setDisplay(args[3].replace("&&", "§") + "§r");
 
-                    if (new MngDatabase().updateRank(rank)) {
-                        sender.sendMessage(ChatColor.GREEN + "Rank successfully modified");
+                if (Database.canConnect) {
+                    if (new MngDatabase().addRank(rank)) {
+                        sender.sendMessage(ChatColor.GREEN + "Rank successfully added");
                     } else {
-                        sender.sendMessage(ChatColor.RED + "Rank could not be modified");
+                        sender.sendMessage(ChatColor.RED + "Rank could not be added");
                     }
-                } else {
-                    sender.sendMessage(ChatColor.RED + "Rank does not exists");
+                    return true;
                 }
-                return true;
+            } else if (args[0].equals("modify")) {
+                String rankName = args[1];
+
+                if (Database.canConnect) {
+                    if (new MngDatabase().hasRank(rankName)) {
+                        DataRank rank = new MngDatabase().getRank(rankName);
+
+                        rank.setLevel(Integer.parseInt(args[2]));
+                        rank.setName(rankName);
+                        rank.setDisplay(args[3].replace("&&", "§") + "§r");
+
+                        if (new MngDatabase().updateRank(rank)) {
+                            sender.sendMessage(ChatColor.GREEN + "Rank successfully modified");
+                        } else {
+                            sender.sendMessage(ChatColor.RED + "Rank could not be modified");
+                        }
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Rank does not exists");
+                    }
+                    return true;
+                }
             }
         }
 

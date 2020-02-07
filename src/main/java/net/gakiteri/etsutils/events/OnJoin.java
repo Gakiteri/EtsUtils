@@ -3,13 +3,11 @@ package net.gakiteri.etsutils.events;
 import net.gakiteri.etsutils.data.Database;
 import net.gakiteri.etsutils.data.DataPlayer;
 import net.gakiteri.etsutils.functions.MngDatabase;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import java.util.UUID;
-import static org.bukkit.Bukkit.getServer;
 
 public class OnJoin implements Listener {
 
@@ -20,15 +18,19 @@ public class OnJoin implements Listener {
         UUID uuid = player.getUniqueId();
 
         if (Database.canConnect) {
-            DataPlayer dataPlayer = new MngDatabase().getPlayer(uuid);
+            DataPlayer dataPlayer = new DataPlayer();
 
-            dataPlayer.setName(getServer().getPlayer(uuid).getName());
-            dataPlayer.setState("on");
+            if (new MngDatabase().hasPlayer(uuid)) {
+                dataPlayer = new MngDatabase().getPlayer(uuid);
+                dataPlayer.setState("on");
+                new MngDatabase().updatePlayer(dataPlayer);
+            } else {
+                dataPlayer.setUuid(uuid);
+                dataPlayer.setName(player.getName());
+                dataPlayer.setState("on");
 
-            new MngDatabase().updatePlayer(dataPlayer);
+                new MngDatabase().addPlayer(dataPlayer);
+            }
         }
-
-        getServer().broadcastMessage(ChatColor.GOLD + "Welcome " + player.getName());
-
     }
 }

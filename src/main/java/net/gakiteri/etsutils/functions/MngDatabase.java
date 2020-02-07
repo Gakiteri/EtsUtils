@@ -68,7 +68,7 @@ public class MngDatabase {
     }
 
     /** PLAYER QUERIES **/
-    public boolean addPlayer(DataPlayer dataPlayer) {
+    public void addPlayer(DataPlayer dataPlayer) {
         try {
             ResultSet result = statement.executeQuery("SELECT * FROM players WHERE UUID = '" + dataPlayer.getUuid() + "';");
             if (!result.next()) {
@@ -77,100 +77,82 @@ public class MngDatabase {
                         + " ('" + dataPlayer.getUuid()
                         + "','" + dataPlayer.getName()
                         + "','" + dataPlayer.getState()
-                        + "','" + dataPlayer.getRank()
+                        + "','" + dataPlayer.getRank().getName()
                         + "','" + dataPlayer.getBalance()
                         + "','" + (dataPlayer.getPvp() ? "1" : "0")
                         + "');");
-                return true;
             }
         } catch (Exception e) {
             onError(e);
         }
-        return false;
     }
 
     public DataPlayer getPlayer(UUID uuid) {
-        DataPlayer dataPlayer = new DataPlayer();
-        try {
-            dataPlayer = getPlayerFromDataBase(statement.executeQuery("SELECT * FROM players WHERE UUID = '" + uuid.toString() + "';"));
-        } catch (Exception e) {
-            onError(e);
-        }
-        return dataPlayer;
+        return getPlayerFromDataBase("SELECT * FROM players WHERE UUID = '" + uuid.toString() + "';");
     }
     public DataPlayer getPlayer(String name) {
-        DataPlayer dataPlayer = new DataPlayer();
-
-        try {
-            dataPlayer = getPlayerFromDataBase(statement.executeQuery("SELECT * FROM players WHERE name = '" + name + "';"));
-        } catch (Exception e) {
-            onError(e);
-        }
-        return dataPlayer;
+        return getPlayerFromDataBase("SELECT * FROM players WHERE name = '" + name + "';");
     }
 
-    private DataPlayer getPlayerFromDataBase(ResultSet result) {
+    private DataPlayer getPlayerFromDataBase(String query) {
         DataPlayer dataPlayer = new DataPlayer();
         try {
-            if (result.next()) {
-                dataPlayer.setUuid(UUID.fromString(result.getString("UUID")));
-                dataPlayer.setName(result.getString("username"));
-                dataPlayer.setState(result.getString("state"));
-                dataPlayer.setRank(result.getString("rank"));
-                dataPlayer.setBalance(result.getInt("balance"));
-                dataPlayer.setPvp(result.getBoolean("pvp"));
+            ResultSet result = statement.executeQuery(query);
+            dataPlayer.setUuid(UUID.fromString(result.getString("UUID")));
+            dataPlayer.setName(result.getString("username"));
+            dataPlayer.setState(result.getString("state"));
+            if (hasRank(result.getString("rank"))) {
+                dataPlayer.setRank(getRank(result.getString("rank")));
+            } else {
+                dataPlayer.setRank(new DataRank());
             }
+            dataPlayer.setBalance(result.getInt("balance"));
+            dataPlayer.setPvp(result.getBoolean("pvp"));
         } catch (Exception e) {
             onError(e);
         }
         return dataPlayer;
     }
 
-    public boolean hasPlayer(String name) {
-        try {
-            return statement.executeQuery("SELECT * FROM players WHERE UUID = '" + name + "';").next();
-        } catch (Exception e) {
-            onError(e);
-        }
-        return false;
+    public boolean hasPlayer(UUID uuid) {
+        return (getPlayerFromDataBase("SELECT * FROM players WHERE UUID = '" + uuid + "';").getUuid() != null);
+    }
+    public boolean hasPlayer(String playerName) {
+        return (getPlayerFromDataBase("SELECT * FROM players WHERE name = '" + playerName + "';").getUuid() != null);
     }
 
-    public boolean updatePlayer(DataPlayer player) {
+    public void updatePlayer(DataPlayer player) {
         try {
             String query = "UPDATE players SET "
                     + "username = '" + player.getName()
                     + "', state = '" + player.getState()
-                    + "', rank = '" + player.getRank()
+                    + "', rank = '" + player.getRank().getName()
                     + "', balance = '" + player.getBalance()
                     + "', pvp = '" + (player.getPvp() ? "1" : "0")
                     + "' WHERE UUID = '" + player.getUuid().toString()
                     + "';";
             statement.executeUpdate(query);
-            return true;
         } catch (Exception e) {
             onError(e);
         }
-        return false;
     }
 
 
     /** RANK QUERIES **/
     public ArrayList<DataRank> getRankList() {
-
         ArrayList<DataRank> ranks = new ArrayList<>();
         try {
             ResultSet result = statement.executeQuery("SELECT * FROM ranks WHERE 1;");
             while (result.next()) {
-                DataRank rank = new DataRank();
-                rank.setLevel(result.getInt("level"));
-                rank.setName(result.getString("name"));
-                rank.setDisplay(result.getString("display"));
-                ranks.add(rank);
+                DataRank dataRank = new DataRank();
+                dataRank.setLevel(result.getInt("level"));
+                dataRank.setName(result.getString("name"));
+                dataRank.setDisplay(result.getString("display"));
+                ranks.add(dataRank);
             }
         } catch (Exception e) {
             onError(e);
         }
-
         return ranks;
     }
 
@@ -202,34 +184,36 @@ public class MngDatabase {
         } catch (Exception e) {
             onError(e);
         }
-
         return false;
     }
 
     public DataRank getRank(String rankName) {
-        DataRank rank = new DataRank();
+        return getRankFromDataBase("SELECT * FROM ranks WHERE name = '" + rankName + "';");
+    }
+    public DataRank getRank(DataPlayer dataPlayer) {
+        return getRankFromDataBase("SELECT * FROM ranks WHERE name = '" + dataPlayer.getRank().getName() + "';");
+    }
 
+    private DataRank getRankFromDataBase(String query) {
+        DataRank dataRank = new DataRank();
         try {
-            ResultSet result = statement.executeQuery("SELECT * FROM ranks WHERE name = '" + rankName + "';");
+            ResultSet result = statement.executeQuery(query);
             if (result.next()) {
-                rank.setName(rankName);
-                rank.setDisplay(result.getString("display"));
-                rank.setLevel(result.getInt("level"));
+                dataRank.setName(result.getString("name"));
+                dataRank.setDisplay(result.getString("display"));
+                dataRank.setLevel(result.getInt("level"));
             }
-
         } catch (Exception e) {
             onError(e);
         }
-        return rank;
+        return dataRank;
     }
 
     public boolean hasRank(String rankName) {
-        try {
-            return statement.executeQuery("SELECT * FROM ranks WHERE name = '" + rankName + "';").next();
-        } catch (Exception e) {
-            onError(e);
-        }
-        return false;
+        return (getRankFromDataBase("SELECT * FROM ranks WHERE name = '" + rankName + "';").getLevel() != 0);
+    }
+    public boolean hasRank(DataPlayer dataPlayer) {
+        return (getRankFromDataBase("SELECT * FROM ranks WHERE name = '" + dataPlayer.getRank().getName() + "';").getLevel() != 0);
     }
 
     public boolean updateRank(DataRank rank) {

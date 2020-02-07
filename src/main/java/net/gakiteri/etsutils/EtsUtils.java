@@ -19,7 +19,7 @@ public final class EtsUtils extends JavaPlugin {
         Variables.pluginName = this.getName();
 
         /** COMMAND REGISTRATION **/
-        //this.getCommand("pvp").setExecutor(new CmdPvp());
+        this.getCommand("pvp").setExecutor(new CmdPvp());
         this.getCommand("rank").setExecutor(new CmdRank());
 
 
