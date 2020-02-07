@@ -7,5 +7,5 @@ description: Multipurpose plugin by ExampleText Studios
 commands:
   rank:
     description: Manage ranks (permissions)
-    usage: /<command> (list|add|remove|<player>) [<name>] [<rank level>] [<display name>]
+    usage: /<command> (list|<player>|add|remove|modify) [<name>] [<rank level>] [<display name>]
 
