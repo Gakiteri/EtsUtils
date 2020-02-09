@@ -5,11 +5,18 @@ api-version: 1.15
 authors: [Gakiteri]
 description: Multipurpose plugin by ExampleText Studios
 commands:
-  rank:
-    description: Manage ranks (permissions)
-    usage: /<command> (list|<player>|add|remove|modify) [<name>] [<rank level>] [<display name>]
+  balance:
+    description: Manage balance among players
+    usage: /<command>
+  player:
+    description: Manage player data
+    usage: /<command> <player> (get|set) (balance|rank|pvp) [<+|-> | (on|off) | <rank>] [<amount>]
   pvp:
     description: Change PvP status for a player
     usage: /<command> (on|off|get|set) [<player>] [on|off]
+  rank:
+    description: Manage ranks (permissions)
+    usage: /<command> (list|<player>|add|remove|modify) [<name>] [<rank level>] [<display name>]
+
 
 

@@ -11,7 +11,7 @@ public class Database {
     public static String username;
     public static String password;
 
-    public static void setNull() {
+    Database() {
         canConnect = false;
         host = "";
         port = 0;

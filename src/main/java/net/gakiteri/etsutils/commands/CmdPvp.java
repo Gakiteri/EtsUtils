@@ -31,11 +31,10 @@ public class CmdPvp implements CommandExecutor {
             String playerName = sender.getName();
             if (args[0].equals("on")) {
                 setPvp(playerName, true, sender);
-                return true;
             } else if (args[0].equals("off")) {
                 setPvp(playerName, false, sender);
-                return true;
             }
+            return true;
         } else if (args.length == 2 && args[0].equals("get")) {
             String playerName = args[1];
             if (new MngDatabase().hasPlayer(playerName)) {
@@ -48,17 +47,18 @@ public class CmdPvp implements CommandExecutor {
             return true;
         } else if (args.length == 3 && args[0].equals("set")) {
             String playerName = args[1];
-            if (new MngDatabase().hasPlayer(playerName)) {
+            if (playerName.equals("@a")) {
+
+            } else if (new MngDatabase().hasPlayer(playerName)) {
                 if (args[2].equals("on")) {
                     setPvp(playerName, true, sender);
-                    return true;
                 } else if (args[2].equals("off")) {
                     setPvp(playerName, false, sender);
-                    return true;
                 }
             } else {
                 sender.sendMessage(ChatColor.RED + "The player " + playerName + " does not exist");
             }
+            return true;
         }
 
         return false;
@@ -66,14 +66,13 @@ public class CmdPvp implements CommandExecutor {
 
     private void setPvp(String playerName, boolean val, CommandSender sender) {
         DataPlayer dataPlayer = new MngDatabase().getPlayer(playerName);
-        String status = dataPlayer.getPvp() ? "on" : "off";
 
         if (dataPlayer.getPvp() == val) {
-            sender.sendMessage(ChatColor.RED + "PvP is already " + status);
+            sender.sendMessage(ChatColor.RED + "PvP is already " + (dataPlayer.getPvp() ? "on" : "off"));
         } else {
             dataPlayer.setPvp(val);
             new MngDatabase().updatePlayer(dataPlayer);
-            sender.sendMessage(ChatColor.GREEN + "PvP turned " + status);
+            sender.sendMessage(ChatColor.GREEN + "PvP turned " + (val ? "on" : "off"));
         }
     }
 

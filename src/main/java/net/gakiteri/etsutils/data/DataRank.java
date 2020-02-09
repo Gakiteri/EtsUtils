@@ -1,5 +1,7 @@
 package net.gakiteri.etsutils.data;
 
+import net.gakiteri.etsutils.Variables;
+
 public class DataRank {
 
     private int level;
@@ -8,9 +10,9 @@ public class DataRank {
 
     /** INITIALISE WITH DEFAULT VALUES **/
     public DataRank() {
-        this.level = 0;
-        this.name = "";
-        this.display = "";
+        this.level = Variables.defPlayerRankLevel;
+        this.name = Variables.defPlayerRank;
+        this.display = this.name;
     }
 
 
@@ -22,6 +24,7 @@ public class DataRank {
         return level;
     }
 
+
     /** NAME **/
     public void setName(String val) {
         name = val;
@@ -29,6 +32,7 @@ public class DataRank {
     public String getName() {
         return name;
     }
+
 
     /** DISPLAY **/
     public void setDisplay(String val) {

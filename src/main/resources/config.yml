@@ -9,14 +9,25 @@ database:
   username: "etsutils"
   password: "abJ-n5PBGdy4"
 
-ranks:
-  100:
+
+default-config:
+  player:
+    rank: "Member"
+    balance: 0
+
+  commands:
+    balance: true
+    player: true
+    pvp: true
+    rank: true
+
+  ranks:
+  - 1:
     - Admin
-  200:
+  - 10:
     - Mod
-  300:
+  - 20:
     - Builder
-  400:
+  - 30:
     - Member
-  500:
-    - Guest
+

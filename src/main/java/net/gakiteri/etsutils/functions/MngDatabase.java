@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.bukkit.Bukkit.getLogger;
-import static org.bukkit.Bukkit.getServer;
 
 public class MngDatabase {
 
@@ -91,23 +90,25 @@ public class MngDatabase {
         return getPlayerFromDataBase("SELECT * FROM players WHERE UUID = '" + uuid.toString() + "';");
     }
     public DataPlayer getPlayer(String name) {
-        return getPlayerFromDataBase("SELECT * FROM players WHERE name = '" + name + "';");
+        return getPlayerFromDataBase("SELECT * FROM players WHERE username = '" + name + "';");
     }
 
     private DataPlayer getPlayerFromDataBase(String query) {
         DataPlayer dataPlayer = new DataPlayer();
         try {
             ResultSet result = statement.executeQuery(query);
-            dataPlayer.setUuid(UUID.fromString(result.getString("UUID")));
-            dataPlayer.setName(result.getString("username"));
-            dataPlayer.setState(result.getString("state"));
-            if (hasRank(result.getString("rank"))) {
-                dataPlayer.setRank(getRank(result.getString("rank")));
-            } else {
-                dataPlayer.setRank(new DataRank());
+            if (result.next()) {
+                dataPlayer.setUuid(UUID.fromString(result.getString("UUID")));
+                dataPlayer.setName(result.getString("username"));
+                dataPlayer.setState(result.getString("state"));
+                if (hasRank(result.getString("rank"))) {
+                    dataPlayer.setRank(getRank(result.getString("rank")));
+                } else {
+                    dataPlayer.setRank(new DataRank());
+                }
+                dataPlayer.setBalance(result.getInt("balance"));
+                dataPlayer.setPvp(result.getBoolean("pvp"));
             }
-            dataPlayer.setBalance(result.getInt("balance"));
-            dataPlayer.setPvp(result.getBoolean("pvp"));
         } catch (Exception e) {
             onError(e);
         }
@@ -115,10 +116,10 @@ public class MngDatabase {
     }
 
     public boolean hasPlayer(UUID uuid) {
-        return (getPlayerFromDataBase("SELECT * FROM players WHERE UUID = '" + uuid + "';").getUuid() != null);
+        return (getPlayerFromDataBase("SELECT * FROM players WHERE UUID = '" + uuid.toString() + "';").getUuid() != null);
     }
     public boolean hasPlayer(String playerName) {
-        return (getPlayerFromDataBase("SELECT * FROM players WHERE name = '" + playerName + "';").getUuid() != null);
+        return (getPlayerFromDataBase("SELECT * FROM players WHERE username = '" + playerName + "';").getUuid() != null);
     }
 
     public void updatePlayer(DataPlayer player) {

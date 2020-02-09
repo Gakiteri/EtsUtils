@@ -1,5 +1,6 @@
 package net.gakiteri.etsutils.data;
 
+import net.gakiteri.etsutils.Variables;
 import java.util.UUID;
 
 public class DataPlayer {
@@ -17,7 +18,7 @@ public class DataPlayer {
         name = "";
         state = "off";
         rank = new DataRank();
-        balance = 0;
+        balance = Variables.defPlayerBalance;
         pvp = false;
     }
 

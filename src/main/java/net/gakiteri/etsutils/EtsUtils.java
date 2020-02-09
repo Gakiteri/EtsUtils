@@ -9,6 +9,7 @@ import net.gakiteri.etsutils.functions.MngFile;
 import org.bukkit.Server;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 public final class EtsUtils extends JavaPlugin {
 
@@ -18,19 +19,6 @@ public final class EtsUtils extends JavaPlugin {
         PluginManager pluginManager = server.getPluginManager();
         Variables.pluginName = this.getName();
 
-        /** COMMAND REGISTRATION **/
-        this.getCommand("pvp").setExecutor(new CmdPvp());
-        this.getCommand("rank").setExecutor(new CmdRank());
-
-
-        /** EVENT REGISTRATION **/
-        pluginManager.registerEvents(new OnChatMessage(), this);
-        pluginManager.registerEvents(new OnJoin(), this);
-        pluginManager.registerEvents(new OnLeave(), this);
-
-        /** TASK REGISTRATION **/
-        //BukkitTask GetTime = new GetTime(this).runTaskTimer(this, 0L, 40L);
-
         /** GET PLUGIN DIRECTORY **/
         Variables.dirPlugin = MngFile.path(getDataFolder());
 
@@ -39,16 +27,24 @@ public final class EtsUtils extends JavaPlugin {
         saveDefaultConfig();
 
         Variables.config = getConfig();
-        new MngConfig().load();
+        MngConfig.loadDb();
+        MngConfig.loadNoDb();
 
-        /** GET DATABASE **/
-        if (Database.active) {
-            new MngDatabase().asyncConnection.runTaskAsynchronously(this);
-        }
+        /** COMMAND REGISTRATION **/
+        if (Variables.defCmdBalance) { this.getCommand("balance").setExecutor(new CmdBalance()); }
+        if (Variables.defCmdPlayer) { this.getCommand("player").setExecutor(new CmdPlayer()); }
+        if (Variables.defCmdPvp) { this.getCommand("pvp").setExecutor(new CmdPvp()); }
+        if (Variables.defCmdRank) { this.getCommand("rank").setExecutor(new CmdRank()); }
 
 
+        /** EVENT REGISTRATION **/
+        pluginManager.registerEvents(new OnChatMessage(), this);
+        pluginManager.registerEvents(new OnJoin(), this);
+        pluginManager.registerEvents(new OnLeave(), this);
+        pluginManager.registerEvents(new OnPvp(), this);
 
-
+        /** TASK REGISTRATION **/
+        //BukkitTask GetTime = new GetTime(this).runTaskTimer(this, 0L, 40L);
 
         // Plugin startup message
         getLogger().info(Variables.pluginName + " plugin initialised");
