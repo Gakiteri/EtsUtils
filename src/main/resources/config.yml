@@ -10,17 +10,21 @@ database:
   password: "abJ-n5PBGdy4"
 
 
+# Default configs
 default-config:
   player:
     rank: "Member"
     balance: 0
 
+  # Enable and disable commands (useful for compatibility with other plugins)
+  # true = command enabled | false = command disabled
   commands:
     balance: true
     player: true
     pvp: true
     rank: true
 
+  # Automatically created when the plugin is loaded
   ranks:
   - 1:
     - Admin

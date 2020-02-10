@@ -13,7 +13,6 @@ import static org.bukkit.Bukkit.getLogger;
 
 public class MngDatabase {
 
-    private static Connection connection;
     private static Statement statement;
 
     /** CONNECTS TO DATABASE **/
@@ -22,7 +21,7 @@ public class MngDatabase {
         public void run() {
             try {
                 Class.forName("org.mariadb.jdbc.Driver");
-                connection = DriverManager.getConnection("jdbc:mariadb://" + Database.host+ ":" + Database.port + "/" + Database.database + "?user=" + Database.username); // + "&password=" + Database.password);
+                Connection connection = DriverManager.getConnection("jdbc:mariadb://" + Database.host+ ":" + Database.port + "/" + Database.database + "?user=" + Database.username); // + "&password=" + Database.password);
                 statement = connection.createStatement();
                 Database.canConnect = true;
                 initTables();

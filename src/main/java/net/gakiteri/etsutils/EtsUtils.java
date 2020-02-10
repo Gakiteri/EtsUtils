@@ -1,11 +1,8 @@
 package net.gakiteri.etsutils;
 
 import net.gakiteri.etsutils.commands.*;
-import net.gakiteri.etsutils.data.Database;
 import net.gakiteri.etsutils.events.*;
-import net.gakiteri.etsutils.functions.MngConfig;
-import net.gakiteri.etsutils.functions.MngDatabase;
-import net.gakiteri.etsutils.functions.MngFile;
+import net.gakiteri.etsutils.functions.*;
 import org.bukkit.Server;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,8 +24,7 @@ public final class EtsUtils extends JavaPlugin {
         saveDefaultConfig();
 
         Variables.config = getConfig();
-        MngConfig.loadDb();
-        MngConfig.loadNoDb();
+        MngConfig.load();
 
         /** COMMAND REGISTRATION **/
         if (Variables.defCmdBalance) { this.getCommand("balance").setExecutor(new CmdBalance()); }
@@ -44,7 +40,10 @@ public final class EtsUtils extends JavaPlugin {
         pluginManager.registerEvents(new OnPvp(), this);
 
         /** TASK REGISTRATION **/
-        //BukkitTask GetTime = new GetTime(this).runTaskTimer(this, 0L, 40L);
+        //BukkitTask GetExample = new GetExample(this).runTaskTimer(this, 0L, 40L);
+        BukkitTask connectDatabase = new MngDatabase().asyncConnection.runTaskLaterAsynchronously(this, 1L);
+        BukkitTask loadDbDependant = new MngConfig().loadWthDb.runTaskLater(this, 5L);
+
 
         // Plugin startup message
         getLogger().info(Variables.pluginName + " plugin initialised");

@@ -14,7 +14,7 @@ public class Variables {
     // Defaults
     public static String defPlayerRank;
     public static int defPlayerBalance;
-    public static int defPlayerRankLevel;
+    public static int defPlayerRankLevel = 0;
 
     public static boolean defCmdBalance = false;
     public static boolean defCmdPlayer = false;
