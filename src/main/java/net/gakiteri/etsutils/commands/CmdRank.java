@@ -52,17 +52,21 @@ public class CmdRank implements CommandExecutor {
             } else {
                 String playerName = args[0];
                 if (Database.canConnect) {
-                    if (new MngDatabase().hasPlayer(playerName)) {
-                        DataPlayer dataPlayer = new MngDatabase().getPlayer(playerName);
-                        if (new MngDatabase().hasRank(dataPlayer)) {
-                            DataRank dataRank = new MngDatabase().getRank(dataPlayer);
-                            sender.sendMessage(ChatColor.GREEN + playerName + "has the rank " + dataRank.getName() + " with the permission level of " + dataRank.getLevel());
+                    if (playerName.equals("list") || playerName.equals("modify") || playerName.equals("remove") || playerName.equals("add")) {
+                        if (new MngDatabase().hasPlayer(playerName)) {
+                            DataPlayer dataPlayer = new MngDatabase().getPlayer(playerName);
+                            if (new MngDatabase().hasRank(dataPlayer)) {
+                                DataRank dataRank = new MngDatabase().getRank(dataPlayer);
+                                sender.sendMessage(ChatColor.BLUE + playerName + "has the rank " + dataRank.getName() + " with the permission level of " + dataRank.getLevel());
+                            } else {
+                                sender.sendMessage(ChatColor.RED + playerName + " has no rank");
+                            }
                         } else {
-                            sender.sendMessage(ChatColor.RED + playerName + " has no rank");
+                            sender.sendMessage(ChatColor.RED + "The player " + playerName + " does not exist");
                         }
                         return true;
                     } else {
-                        sender.sendMessage(ChatColor.RED + "The player " + playerName + " does not exist");
+                        return false;
                     }
                 }
             }

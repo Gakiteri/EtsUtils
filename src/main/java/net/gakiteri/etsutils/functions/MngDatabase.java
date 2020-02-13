@@ -34,23 +34,28 @@ public class MngDatabase {
     /** INITIALISE TABLES **/
     private void initTables() {
         try {
+            // ranks
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS `ranks` (" +
+                    "`ID` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                    "`level` int(11) NOT NULL, " +
+                    "`rankname` varchar(15) NOT NULL UNIQUE, " +
+                    "`display` tinytext NOT NULL " +
+                    ");");
+
             // players
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS `players` (" +
                     "`ID` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
                     "`UUID` tinytext NOT NULL, " +
                     "`username` tinytext NOT NULL, " +
                     "`state` tinytext NOT NULL, " +
-                    "`rank` tinytext NOT NULL, " +
-                    "`balance` int(11) NOT NULL," +
+                    "`rank` varchar(15), " +
+                    "CONSTRAINT rankName " +
+                    "FOREIGN KEY (rank) " +
+                    "REFERENCES ranks(rankname) " +
+                    "ON DELETE SET NULL " +
+                    "ON UPDATE CASCADE, " +
+                    "`balance` int(11) NOT NULL, " +
                     "`pvp` tinyint(1) NOT NULL " +
-                    ");");
-
-            // ranks
-            statement.executeUpdate("CREATE TABLE IF NOT EXISTS `ranks` (" +
-                    "`ID` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                    "`level` int(11) NOT NULL, " +
-                    "`name` tinytext NOT NULL," +
-                    "`display` tinytext NOT NULL" +
                     ");");
 
         } catch (Exception e) {
@@ -146,7 +151,7 @@ public class MngDatabase {
             while (result.next()) {
                 DataRank dataRank = new DataRank();
                 dataRank.setLevel(result.getInt("level"));
-                dataRank.setName(result.getString("name"));
+                dataRank.setName(result.getString("rankname"));
                 dataRank.setDisplay(result.getString("display"));
                 ranks.add(dataRank);
             }
@@ -158,10 +163,10 @@ public class MngDatabase {
 
     public boolean addRank(DataRank rank) {
         try {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM ranks WHERE name = '" + rank.getName() + "';");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM ranks WHERE rankname = '" + rank.getName() + "';");
             if (!resultSet.next()) {
                 statement.executeUpdate("INSERT INTO ranks "
-                        + "(level, name, display) VALUES"
+                        + "(level, rankname, display) VALUES"
                         + " ('" + rank.getLevel()
                         + "','" + rank.getName()
                         + "','" + rank.getDisplay()
@@ -176,9 +181,9 @@ public class MngDatabase {
 
     public boolean removeRank(String rankName) {
         try {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM ranks WHERE name = '" + rankName + "';");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM ranks WHERE rankname = '" + rankName + "';");
             if (resultSet.next()) {
-                statement.executeUpdate("DELETE FROM ranks WHERE name = '" + rankName + "';");
+                statement.executeUpdate("DELETE FROM ranks WHERE rankname = '" + rankName + "';");
                 return true;
             }
         } catch (Exception e) {
@@ -188,10 +193,10 @@ public class MngDatabase {
     }
 
     public DataRank getRank(String rankName) {
-        return getRankFromDataBase("SELECT * FROM ranks WHERE name = '" + rankName + "';");
+        return getRankFromDataBase("SELECT * FROM ranks WHERE rankname = '" + rankName + "';");
     }
     public DataRank getRank(DataPlayer dataPlayer) {
-        return getRankFromDataBase("SELECT * FROM ranks WHERE name = '" + dataPlayer.getRank().getName() + "';");
+        return getRankFromDataBase("SELECT * FROM ranks WHERE rankname = '" + dataPlayer.getRank().getName() + "';");
     }
 
     private DataRank getRankFromDataBase(String query) {
@@ -199,7 +204,7 @@ public class MngDatabase {
         try {
             ResultSet result = statement.executeQuery(query);
             if (result.next()) {
-                dataRank.setName(result.getString("name"));
+                dataRank.setName(result.getString("rankname"));
                 dataRank.setDisplay(result.getString("display"));
                 dataRank.setLevel(result.getInt("level"));
             }
@@ -210,19 +215,19 @@ public class MngDatabase {
     }
 
     public boolean hasRank(String rankName) {
-        return (getRankFromDataBase("SELECT * FROM ranks WHERE name = '" + rankName + "';").getLevel() != 0);
+        return (getRankFromDataBase("SELECT * FROM ranks WHERE rankname = '" + rankName + "';").getLevel() != 0);
     }
     public boolean hasRank(DataPlayer dataPlayer) {
-        return (getRankFromDataBase("SELECT * FROM ranks WHERE name = '" + dataPlayer.getRank().getName() + "';").getLevel() != 0);
+        return (getRankFromDataBase("SELECT * FROM ranks WHERE rankname = '" + dataPlayer.getRank().getName() + "';").getLevel() != 0);
     }
 
     public boolean updateRank(DataRank rank) {
         try {
             String query = "UPDATE ranks SET "
                     + "level = '" + rank.getLevel()
-                    + "', name = '" + rank.getName()
+                    + "', rankname = '" + rank.getName()
                     + "', display = '" + rank.getDisplay()
-                    + "' WHERE name = '" + rank.getName()
+                    + "' WHERE rankname = '" + rank.getName()
                     + "';";
             statement.executeUpdate(query);
             return true;

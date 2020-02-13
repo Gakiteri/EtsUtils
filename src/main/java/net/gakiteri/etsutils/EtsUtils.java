@@ -42,8 +42,7 @@ public final class EtsUtils extends JavaPlugin {
         /** TASK REGISTRATION **/
         //BukkitTask GetExample = new GetExample(this).runTaskTimer(this, 0L, 40L);
         BukkitTask connectDatabase = new MngDatabase().asyncConnection.runTaskLaterAsynchronously(this, 1L);
-        BukkitTask loadDbDependant = new MngConfig().loadWthDb.runTaskLater(this, 5L);
-
+        BukkitTask loadDbDependant = new MngConfig().loadWthDb.runTaskLater(this, 10L);
 
         // Plugin startup message
         getLogger().info(Variables.pluginName + " plugin initialised");
