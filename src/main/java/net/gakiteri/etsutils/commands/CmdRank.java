@@ -21,9 +21,9 @@ public class CmdRank implements CommandExecutor {
         if (args.length == 0) {
             List<String> arguments = Arrays.asList(
                     "list",
-                    "remove <rank>",
                     "add <rank> <permission> <display>",
                     "modify <rank> <permission> <display>",
+                    "remove <rank>",
                     "<player>"
             );
             sender.sendMessage(ChatColor.GOLD + "Available arguments:");
@@ -51,13 +51,13 @@ public class CmdRank implements CommandExecutor {
                 return true;
             } else {
                 String playerName = args[0];
-                if (Database.canConnect) {
-                    if (playerName.equals("list") || playerName.equals("modify") || playerName.equals("remove") || playerName.equals("add")) {
+                if (!(playerName.equals("modify") || playerName.equals("remove") || playerName.equals("add"))) {
+                    if (Database.canConnect) {
                         if (new MngDatabase().hasPlayer(playerName)) {
                             DataPlayer dataPlayer = new MngDatabase().getPlayer(playerName);
                             if (new MngDatabase().hasRank(dataPlayer)) {
                                 DataRank dataRank = new MngDatabase().getRank(dataPlayer);
-                                sender.sendMessage(ChatColor.BLUE + playerName + "has the rank " + dataRank.getName() + " with the permission level of " + dataRank.getLevel());
+                                sender.sendMessage(ChatColor.BLUE + playerName + " has the rank " + dataRank.getName() + " with the permission level of " + dataRank.getLevel());
                             } else {
                                 sender.sendMessage(ChatColor.RED + playerName + " has no rank");
                             }
@@ -65,15 +65,15 @@ public class CmdRank implements CommandExecutor {
                             sender.sendMessage(ChatColor.RED + "The player " + playerName + " does not exist");
                         }
                         return true;
-                    } else {
-                        return false;
                     }
+                } else {
+                    return false;
                 }
             }
         } else if (args.length == 2) {
             if (args[0].equals("remove")) {
                 if (Database.canConnect) {
-                    if (new MngDatabase().removeRank(args[1])) {
+                    if (new MngDatabase().removeRank(args[1].toLowerCase())) {
                         sender.sendMessage(ChatColor.GREEN + "Rank successfully deleted");
                     } else {
                         sender.sendMessage(ChatColor.RED + "Rank could not be deleted");
@@ -83,11 +83,12 @@ public class CmdRank implements CommandExecutor {
             }
         } else if (args.length == 4) {
             if (args[0].equals("add")) {
-                    DataRank rank = new DataRank();
+                String rankName = args[1].toLowerCase();
+                DataRank rank = new DataRank();
 
-                    rank.setLevel(Integer.parseInt(args[2]));
-                    rank.setName(args[1]);
-                    rank.setDisplay(args[3].replace("&&", "§") + "§r");
+                rank.setLevel(Integer.parseInt(args[2]));
+                rank.setName(rankName);
+                rank.setDisplay(args[3].replace("&&", "§") + "§r");
 
                 if (Database.canConnect) {
                     if (new MngDatabase().addRank(rank)) {
@@ -98,7 +99,7 @@ public class CmdRank implements CommandExecutor {
                     return true;
                 }
             } else if (args[0].equals("modify")) {
-                String rankName = args[1];
+                String rankName = args[1].toLowerCase();
 
                 if (Database.canConnect) {
                     if (new MngDatabase().hasRank(rankName)) {

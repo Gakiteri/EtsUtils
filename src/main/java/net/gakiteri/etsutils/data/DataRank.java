@@ -10,9 +10,9 @@ public class DataRank {
 
     /** INITIALISE WITH DEFAULT VALUES **/
     public DataRank() {
-        this.level = Variables.defPlayerRankLevel;
-        this.name = Variables.defPlayerRank;
-        this.display = this.name;
+        level = Variables.defPlayerRankLevel;
+        name = Variables.defPlayerRank;
+        display = name;
     }
 
 

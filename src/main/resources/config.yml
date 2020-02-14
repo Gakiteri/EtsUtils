@@ -25,6 +25,7 @@ default-config:
     rank: true
 
   # Automatically created when the plugin is loaded
+  # Rank names will be stored and accessed in lowercase text
   ranks:
   - 1:
     - Admin

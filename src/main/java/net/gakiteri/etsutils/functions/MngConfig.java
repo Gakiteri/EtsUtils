@@ -53,7 +53,7 @@ public class MngConfig {
 
                         DataRank dataRank = new DataRank();
                         dataRank.setLevel(level);
-                        dataRank.setName(name);
+                        dataRank.setName(name.toLowerCase());
                         dataRank.setDisplay(name);
 
                         if (Database.canConnect) {
