@@ -35,18 +35,50 @@ public class CmdBalance implements CommandExecutor {
             });
             return true;
         } else if (args.length == 3) {
+            if (args[0].equals("send") || args[0].equals("request")) {
+
+            int amount = 0;
+
+            String playerName = args[1];
+            DataPlayer objectivePlayer = new DataPlayer();
+            DataPlayer executerPlayer = new DataPlayer();
+
+            if (args[2] instance of int) {
+                amount = args[2];
+            } else {
+                sender.sendMessage(ChatColor.RED + "Please enter a valid amount");
+                return true;
+            }
+
+    	    if (Database.canConnect) {
+    	        executerPlayer = new MngDatabase().getPlayer(sender.getName());
+                if (new MngDatabase().hasPlayer(objectiveName)) {
+                    objectivePlayer = new MngDatabase().getPlayer(objectiveName);
+                } else {
+                    sender.sendMessage(ChatColor.RED + "The player " + objectiveName + " does not exist");
+                    return true;
+                }
+            }
+
             if (args[0].equals("send")) {
-                ;
-            } else if (args[0].equals("request")) {
+                executerPlayer.setBalance(executerPlayer.getBalance() - amount);
+                objectivePlayer.setBalance(objectivePlayer.getBalance() + amount);
+
+                new MngDatabase().updatePlayer(executerPlayer);
+                new MngDatabase().updatePlayer(objectivePlayer);
+
+                sender.sendMessage(ChatColor.GREEN + "Successfully sent " + amount + " to " + playerName);
+            } else {
                 ;
             }
+
         }
 
         sender.sendMessage(ChatColor.RED + "Error executing command, please check you used the correct syntax and try again");
         return false;
     }
 }
-
+/*
         String playerName = "";
         DataPlayer dataPlayer = new DataPlayer();
 
@@ -56,7 +88,7 @@ public class CmdBalance implements CommandExecutor {
                     playerName = args[0];
                     dataPlayer = new MngDatabase().getPlayer(playerName);
                 } else {
-                    sender.sendMessage(ChatColor.RED + "The player " + args[0] + " does not exist");
+
                     return true;
                 }
             }
@@ -151,3 +183,4 @@ public class CmdBalance implements CommandExecutor {
 
         return false;
     }
+*/
