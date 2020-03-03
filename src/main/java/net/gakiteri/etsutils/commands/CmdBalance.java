@@ -61,6 +61,13 @@ public class CmdBalance implements CommandExecutor {
             }
 
             if (args[0].equals("send")) {
+
+				BukkitTask execConf = new ConfBalance().conf.runTaskLater(this, 100L);
+
+
+				// INITIALISE CONFIRMATION
+				// send message bellow on confirmation
+				
                 executerPlayer.setBalance(executerPlayer.getBalance() - amount);
                 objectivePlayer.setBalance(objectivePlayer.getBalance() + amount);
 

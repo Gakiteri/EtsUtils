@@ -21,7 +21,7 @@ public final class EtsUtils extends JavaPlugin {
 
         /** GET CONFIG **/
         getConfig().options().copyDefaults();
-        saveDefaultConfig();
+        //saveDefaultConfig(); ------------------------------- Check this line
 
         Variables.config = getConfig();
         MngConfig.load();
