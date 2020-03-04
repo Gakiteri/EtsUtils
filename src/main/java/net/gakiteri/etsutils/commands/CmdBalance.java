@@ -3,10 +3,12 @@ package net.gakiteri.etsutils.commands;
 import net.gakiteri.etsutils.data.DataPlayer;
 import net.gakiteri.etsutils.data.Database;
 import net.gakiteri.etsutils.functions.MngDatabase;
+import net.gakiteri.etsutils.tasks.ConfBalance;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,20 +64,16 @@ public class CmdBalance implements CommandExecutor {
 
 				BukkitTask execConf = new ConfBalance().conf.runTaskLater(this, 100L);
 
-
 				// INITIALISE CONFIRMATION
 				// send message bellow on confirmation
 
                 executerPlayer.setBalance(executerPlayer.getBalance() - amount);
                 objectivePlayer.setBalance(objectivePlayer.getBalance() + amount);
-                if (args[0].equals("send")) {
-                    executerPlayer.setBalance(executerPlayer.getBalance() - amount);
-                    objectivePlayer.setBalance(objectivePlayer.getBalance() + amount);
 
-                    new MngDatabase().updatePlayer(executerPlayer);
-                    new MngDatabase().updatePlayer(objectivePlayer);
+                new MngDatabase().updatePlayer(executerPlayer);
+                new MngDatabase().updatePlayer(objectivePlayer);
 
-                    sender.sendMessage(ChatColor.GREEN + "Successfully sent " + amount + " to " + objectiveName);
+                sender.sendMessage(ChatColor.GREEN + "Successfully sent " + amount + " to " + objectiveName);
                 } else {
                     ;
                 }
