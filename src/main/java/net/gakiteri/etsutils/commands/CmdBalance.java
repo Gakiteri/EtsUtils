@@ -1,5 +1,8 @@
 package net.gakiteri.etsutils.commands;
 
+import net.gakiteri.etsutils.data.DataPlayer;
+import net.gakiteri.etsutils.data.Database;
+import net.gakiteri.etsutils.functions.MngDatabase;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,7 +23,7 @@ public class CmdBalance implements CommandExecutor {
                 balance = new MngDatabase().getPlayer(sender.getName()).getBalance();
             }
 
-            sender.sendMessage(ChatColor.GREEN + "Your current balance is " + balance)
+            sender.sendMessage(ChatColor.GREEN + "Your current balance is " + balance);
             return true;
         } else if (args.length == 1 && args[0].equals("help")) {
             List<String> arguments = Arrays.asList(
@@ -37,43 +40,37 @@ public class CmdBalance implements CommandExecutor {
         } else if (args.length == 3) {
             if (args[0].equals("send") || args[0].equals("request")) {
 
-            int amount = 0;
+                int amount = 0;
 
-            String playerName = args[1];
-            DataPlayer objectivePlayer = new DataPlayer();
-            DataPlayer executerPlayer = new DataPlayer();
+                String objectiveName = args[1];
+                DataPlayer objectivePlayer = new DataPlayer();
+                DataPlayer executerPlayer = new DataPlayer();
 
-            if (args[2] instance of int) {
-                amount = args[2];
-            } else {
-                sender.sendMessage(ChatColor.RED + "Please enter a valid amount");
-                return true;
-            }
+                amount = Integer.parseInt(args[2]);
 
-    	    if (Database.canConnect) {
-    	        executerPlayer = new MngDatabase().getPlayer(sender.getName());
-                if (new MngDatabase().hasPlayer(objectiveName)) {
-                    objectivePlayer = new MngDatabase().getPlayer(objectiveName);
+                if (Database.canConnect) {
+                    executerPlayer = new MngDatabase().getPlayer(sender.getName());
+                    if (new MngDatabase().hasPlayer(objectiveName)) {
+                        objectivePlayer = new MngDatabase().getPlayer(objectiveName);
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "The player " + objectiveName + " does not exist");
+                        return true;
+                    }
+                }
+
+                if (args[0].equals("send")) {
+                    executerPlayer.setBalance(executerPlayer.getBalance() - amount);
+                    objectivePlayer.setBalance(objectivePlayer.getBalance() + amount);
+
+                    new MngDatabase().updatePlayer(executerPlayer);
+                    new MngDatabase().updatePlayer(objectivePlayer);
+
+                    sender.sendMessage(ChatColor.GREEN + "Successfully sent " + amount + " to " + objectiveName);
                 } else {
-                    sender.sendMessage(ChatColor.RED + "The player " + objectiveName + " does not exist");
-                    return true;
+                    ;
                 }
             }
-
-            if (args[0].equals("send")) {
-                executerPlayer.setBalance(executerPlayer.getBalance() - amount);
-                objectivePlayer.setBalance(objectivePlayer.getBalance() + amount);
-
-                new MngDatabase().updatePlayer(executerPlayer);
-                new MngDatabase().updatePlayer(objectivePlayer);
-
-                sender.sendMessage(ChatColor.GREEN + "Successfully sent " + amount + " to " + playerName);
-            } else {
-                ;
-            }
-
         }
-
         sender.sendMessage(ChatColor.RED + "Error executing command, please check you used the correct syntax and try again");
         return false;
     }
