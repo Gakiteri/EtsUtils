@@ -1,8 +1,10 @@
 package net.gakiteri.etsutils.commands;
 
+import net.gakiteri.etsutils.Variables;
 import net.gakiteri.etsutils.data.DataPlayer;
 import net.gakiteri.etsutils.data.DataRank;
 import net.gakiteri.etsutils.data.Database;
+import net.gakiteri.etsutils.functions.MngConfig;
 import net.gakiteri.etsutils.functions.MngDatabase;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -18,11 +20,16 @@ public class CmdRank implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        if (!Variables.defCmdRank) {
+            sender.sendMessage(ChatColor.RED + "This command is disabled");
+            return true;
+        }
+
         if (args.length == 0) {
             List<String> arguments = Arrays.asList(
                     "list",
-                    "add <rank> <permission> <display>",
-                    "modify <rank> <permission> <display>",
+                    "add <rank> <display>",
+                    "modify <rank> <display>",
                     "remove <rank>",
                     "<player>"
             );
@@ -41,7 +48,6 @@ public class CmdRank implements CommandExecutor {
                     sender.sendMessage(ChatColor.GOLD + "Available ranks:");
                     rankList.forEach(i -> {
                         sender.sendMessage(ChatColor.BLUE
-                                + "- Permission level: " + i.getLevel()
                                 + " Name: " + i.getName()
                                 + " Display: " + ChatColor.RESET + i.getDisplay());
                     });
@@ -57,7 +63,7 @@ public class CmdRank implements CommandExecutor {
                             DataPlayer dataPlayer = new MngDatabase().getPlayer(playerName);
                             if (new MngDatabase().hasRank(dataPlayer)) {
                                 DataRank dataRank = new MngDatabase().getRank(dataPlayer);
-                                sender.sendMessage(ChatColor.BLUE + playerName + " has the rank " + dataRank.getName() + " with the permission level of " + dataRank.getLevel());
+                                sender.sendMessage(ChatColor.BLUE + playerName + " has the rank " + dataRank.getName());
                             } else {
                                 sender.sendMessage(ChatColor.RED + playerName + " has no rank");
                             }
@@ -75,24 +81,25 @@ public class CmdRank implements CommandExecutor {
                 if (Database.canConnect) {
                     if (new MngDatabase().removeRank(args[1].toLowerCase())) {
                         sender.sendMessage(ChatColor.GREEN + "Rank successfully deleted");
+                        MngConfig.save();
                     } else {
                         sender.sendMessage(ChatColor.RED + "Rank could not be deleted");
                     }
                     return true;
                 }
             }
-        } else if (args.length == 4) {
+        } else if (args.length == 3) {
             if (args[0].equals("add")) {
                 String rankName = args[1].toLowerCase();
                 DataRank rank = new DataRank();
 
-                rank.setLevel(Integer.parseInt(args[2]));
                 rank.setName(rankName);
-                rank.setDisplay(args[3].replace("&&", "§") + "§r");
+                rank.setDisplay(args[2].replace("&&", "§") + "§r");
 
                 if (Database.canConnect) {
                     if (new MngDatabase().addRank(rank)) {
                         sender.sendMessage(ChatColor.GREEN + "Rank successfully added");
+                        MngConfig.save();
                     } else {
                         sender.sendMessage(ChatColor.RED + "Rank could not be added");
                     }
@@ -105,9 +112,8 @@ public class CmdRank implements CommandExecutor {
                     if (new MngDatabase().hasRank(rankName)) {
                         DataRank rank = new MngDatabase().getRank(rankName);
 
-                        rank.setLevel(Integer.parseInt(args[2]));
                         rank.setName(rankName);
-                        rank.setDisplay(args[3].replace("&&", "§") + "§r");
+                        rank.setDisplay(args[2].replace("&&", "§") + "§r");
 
                         if (new MngDatabase().updateRank(rank)) {
                             sender.sendMessage(ChatColor.GREEN + "Rank successfully modified");

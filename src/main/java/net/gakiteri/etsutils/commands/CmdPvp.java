@@ -1,5 +1,6 @@
 package net.gakiteri.etsutils.commands;
 
+import net.gakiteri.etsutils.Variables;
 import net.gakiteri.etsutils.data.DataPlayer;
 import net.gakiteri.etsutils.functions.MngDatabase;
 import org.bukkit.ChatColor;
@@ -14,6 +15,11 @@ public class CmdPvp implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if (!Variables.defCmdPvp) {
+            sender.sendMessage(ChatColor.RED + "This command is disabled");
+            return true;
+        }
 
         if (args.length == 0) {
             List<String> arguments = Arrays.asList(

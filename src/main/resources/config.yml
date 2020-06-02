@@ -1,38 +1,32 @@
 
-
 # Database configuration
 database:
   active: true
-  host: "192.168.0.30"
-  port: 3306
-  database: "etsUtils"
-  username: "etsutils"
-  password: "abJ-n5PBGdy4"
+  host: "xdd"
+  port: wololo
+  database: "name"
+  username: "username or something"
+  password: "nope :D"
 
 
 # Default configs
-default-config:
-  player:
-    rank: "Member"
-    balance: 0
+player:
+  rank: "mbr"
+  pvp: true
 
-  # Enable and disable commands (useful for compatibility with other plugins)
-  # true = command enabled | false = command disabled
-  commands:
-    balance: true
-    player: true
-    pvp: true
-    rank: true
+# Enable and disable commands (useful for compatibility with other plugins)
+# true = command enabled | false = command disabled
+commands:
+  get: true
+  permissions: true
+  player: true
+  pvp: false
+  rank: true
 
-  # Automatically created when the plugin is loaded
-  # Rank names will be stored and accessed in lowercase text
-  ranks:
-  - 1:
-    - Admin
-  - 10:
-    - Mod
-  - 20:
-    - Builder
-  - 30:
-    - Member
-
+# Automatically created when the plugin is loaded
+# Rank names will be stored and accessed in lowercase text
+ranks:
+  - "admin"
+  - "mod"
+  - "mbr"
+  - "inv"

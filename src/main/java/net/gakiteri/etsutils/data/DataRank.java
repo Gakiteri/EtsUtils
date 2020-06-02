@@ -1,27 +1,14 @@
 package net.gakiteri.etsutils.data;
 
-import net.gakiteri.etsutils.Variables;
-
 public class DataRank {
 
-    private int level;
     private String name;
     private String display;
 
     /** INITIALISE WITH DEFAULT VALUES **/
     public DataRank() {
-        level = Variables.defPlayerRankLevel;
-        name = Variables.defPlayerRank;
+        name = "";
         display = name;
-    }
-
-
-    /** LEVEL **/
-    public void setLevel(int val) {
-        level = val;
-    }
-    public int getLevel() {
-        return level;
     }
 
 

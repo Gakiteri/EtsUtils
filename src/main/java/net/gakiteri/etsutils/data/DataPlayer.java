@@ -9,7 +9,6 @@ public class DataPlayer {
     private String name;
     private String state;
     private DataRank rank;
-    private int balance;
     private boolean pvp;
 
     /** INITIALISE WITH DEFAULT VALUES **/
@@ -18,8 +17,7 @@ public class DataPlayer {
         name = "";
         state = "off";
         rank = new DataRank();
-        balance = Variables.defPlayerBalance;
-        pvp = false;
+        pvp = Variables.defPlayerPvp;
     }
 
     /** UUID **/
@@ -55,15 +53,6 @@ public class DataPlayer {
     }
     public DataRank getRank() {
         return rank;
-    }
-
-
-    /** BALANCE **/
-    public void setBalance(int val) {
-        balance = val;
-    }
-    public int getBalance() {
-        return balance;
     }
 
 

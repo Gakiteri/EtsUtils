@@ -1,14 +1,14 @@
 package net.gakiteri.etsutils.functions;
 
+import net.gakiteri.etsutils.Variables;
+import net.gakiteri.etsutils.data.DataLocationLog;
 import net.gakiteri.etsutils.data.DataRank;
 import net.gakiteri.etsutils.data.Database;
 import net.gakiteri.etsutils.data.DataPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.UUID;
-
 import static org.bukkit.Bukkit.getLogger;
 
 public class MngDatabase {
@@ -23,6 +23,7 @@ public class MngDatabase {
                 Class.forName("org.mariadb.jdbc.Driver");
                 Connection connection = DriverManager.getConnection("jdbc:mariadb://" + Database.host+ ":" + Database.port + "/" + Database.database + "?user=" + Database.username); // + "&password=" + Database.password);
                 statement = connection.createStatement();
+                getLogger().info(Variables.pluginName + " Database connection established");
                 Database.canConnect = true;
                 initTables();
             } catch (Exception e) {
@@ -37,7 +38,6 @@ public class MngDatabase {
             // ranks
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS `ranks` (" +
                     "`ID` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                    "`level` int(11) NOT NULL, " +
                     "`rankname` varchar(15) NOT NULL UNIQUE, " +
                     "`display` tinytext NOT NULL " +
                     ");");
@@ -45,7 +45,7 @@ public class MngDatabase {
             // players
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS `players` (" +
                     "`ID` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                    "`UUID` tinytext NOT NULL, " +
+                    "`UUID` varchar(40) NOT NULL UNIQUE, " +
                     "`username` tinytext NOT NULL, " +
                     "`state` tinytext NOT NULL, " +
                     "`rank` varchar(15), " +
@@ -54,8 +54,21 @@ public class MngDatabase {
                     "REFERENCES ranks(rankname) " +
                     "ON DELETE SET NULL " +
                     "ON UPDATE CASCADE, " +
-                    "`balance` int(11) NOT NULL, " +
                     "`pvp` tinyint(1) NOT NULL " +
+                    ");");
+
+            // locationLogs
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS `locationLogs` (" +
+                    "`date` date NOT NULL, " +
+                    "`time` time NOT NULL, " +
+                    "`playerUUID` varchar(40), " +
+                    "`dimension` tinytext NOT NULL, " +
+                    "`cordX` tinyint NOT NULL, " +
+                    "`cordY` tinyint NOT NULL, " +
+                    "`cordZ` tinyint NOT NULL, " +
+                    "CONSTRAINT `UUID` FOREIGN KEY (`playerUUID`) REFERENCES players(`UUID`) " +
+                    "ON UPDATE CASCADE, " +
+                    "CONSTRAINT tablePK PRIMARY KEY (`date`, `time`)" +
                     ");");
 
         } catch (Exception e) {
@@ -66,7 +79,7 @@ public class MngDatabase {
     /** ERROR ON DB CONNECTION **/
     private void onError(Exception e) {
         Database.canConnect = false;
-        getLogger().warning("Could not connect/interact to database successfully");
+        getLogger().warning("Could not connect/interact to/with database successfully");
         e.printStackTrace();
     }
 
@@ -76,12 +89,11 @@ public class MngDatabase {
             ResultSet result = statement.executeQuery("SELECT * FROM players WHERE UUID = '" + dataPlayer.getUuid() + "';");
             if (!result.next()) {
                 statement.executeUpdate("INSERT INTO players " +
-                        "(UUID, username, state, rank, balance, pvp) VALUES"
+                        "(UUID, username, state, rank, pvp) VALUES"
                         + " ('" + dataPlayer.getUuid()
                         + "','" + dataPlayer.getName()
                         + "','" + dataPlayer.getState()
                         + "','" + dataPlayer.getRank().getName()
-                        + "','" + dataPlayer.getBalance()
                         + "','" + (dataPlayer.getPvp() ? "1" : "0")
                         + "');");
             }
@@ -108,9 +120,8 @@ public class MngDatabase {
                 if (hasRank(result.getString("rank"))) {
                     dataPlayer.setRank(getRank(result.getString("rank")));
                 } else {
-                    dataPlayer.setRank(new DataRank());
+                    dataPlayer.setRank(new MngDatabase().getRank(Variables.defPlayerRank));
                 }
-                dataPlayer.setBalance(result.getInt("balance"));
                 dataPlayer.setPvp(result.getBoolean("pvp"));
             }
         } catch (Exception e) {
@@ -132,7 +143,6 @@ public class MngDatabase {
                     + "username = '" + player.getName()
                     + "', state = '" + player.getState()
                     + "', rank = '" + player.getRank().getName()
-                    + "', balance = '" + player.getBalance()
                     + "', pvp = '" + (player.getPvp() ? "1" : "0")
                     + "' WHERE UUID = '" + player.getUuid().toString()
                     + "';";
@@ -150,7 +160,6 @@ public class MngDatabase {
             ResultSet result = statement.executeQuery("SELECT * FROM ranks WHERE 1;");
             while (result.next()) {
                 DataRank dataRank = new DataRank();
-                dataRank.setLevel(result.getInt("level"));
                 dataRank.setName(result.getString("rankname"));
                 dataRank.setDisplay(result.getString("display"));
                 ranks.add(dataRank);
@@ -166,9 +175,8 @@ public class MngDatabase {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM ranks WHERE rankname = '" + rank.getName() + "';");
             if (!resultSet.next()) {
                 statement.executeUpdate("INSERT INTO ranks "
-                        + "(level, rankname, display) VALUES"
-                        + " ('" + rank.getLevel()
-                        + "','" + rank.getName()
+                        + "(rankname, display) VALUES"
+                        + " ('" + rank.getName()
                         + "','" + rank.getDisplay()
                         + "');");
                 return true;
@@ -206,7 +214,6 @@ public class MngDatabase {
             if (result.next()) {
                 dataRank.setName(result.getString("rankname"));
                 dataRank.setDisplay(result.getString("display"));
-                dataRank.setLevel(result.getInt("level"));
             }
         } catch (Exception e) {
             onError(e);
@@ -215,17 +222,16 @@ public class MngDatabase {
     }
 
     public boolean hasRank(String rankName) {
-        return (getRankFromDataBase("SELECT * FROM ranks WHERE rankname = '" + rankName + "';").getLevel() != 0);
+        return (!getRankFromDataBase("SELECT * FROM ranks WHERE rankname = '" + rankName + "';").getName().isEmpty());
     }
     public boolean hasRank(DataPlayer dataPlayer) {
-        return (getRankFromDataBase("SELECT * FROM ranks WHERE rankname = '" + dataPlayer.getRank().getName() + "';").getLevel() != 0);
+        return (!getRankFromDataBase("SELECT * FROM ranks WHERE rankname = '" + dataPlayer.getRank().getName() + "';").getName().isEmpty());
     }
 
     public boolean updateRank(DataRank rank) {
         try {
             String query = "UPDATE ranks SET "
-                    + "level = '" + rank.getLevel()
-                    + "', rankname = '" + rank.getName()
+                    + "rankname = '" + rank.getName()
                     + "', display = '" + rank.getDisplay()
                     + "' WHERE rankname = '" + rank.getName()
                     + "';";
@@ -237,13 +243,26 @@ public class MngDatabase {
         return false;
     }
 
-    /*
-    statement.executeUpdate("INSERT INTO ranks " +
-            "(level, name, display) VALUES"
-            + " ('" + rank.getLevel()
-            + "','" + rank.getName()
-            + "','" + rank.getDisplay()
-            + ");");
 
-     */
+    /** LOCATION QUERIES **/
+    public void addLocationLog(DataLocationLog log) {
+        try {
+            statement.executeUpdate("INSERT INTO locationLogs "
+                    + "(date, time, playerUUID, dimension, cordX, cordY, cordZ) VALUES"
+                    + " ('" + log.getDate()
+                    + "','" + log.getTime()
+                    + "','" + log.getUuid()
+                    + "','" + log.getDimension()
+                    + "','" + log.getX()
+                    + "','" + log.getY()
+                    + "','" + log.getZ()
+                    + "');");
+        } catch (Exception e) {
+            onError(e);
+        }
+
+    }
+
+
+
 }

@@ -2,21 +2,62 @@ name: EtsUtils
 version: ${project.version}
 main: net.gakiteri.etsutils.EtsUtils
 api-version: 1.15
-authors: [Gakiteri]
+author: Gakiteri
 description: Multipurpose plugin by ExampleText Studios
+
 commands:
-  balance:
-    description: Manage balance among players
-    usage: /<command>
   player:
     description: Manage player data
-    usage: /<command> <player> (get|set) (balance|rank|pvp) [<+|-> | (on|off) | <rank>] [<amount>]
+    usage: /<command> <player> (get|set) (rank|pvp) [<+|-> | (on|off) | <rank>] [<amount>]
+    permission: etsutils.member
   pvp:
     description: Change PvP status for a player
     usage: /<command> (on|off|get|set) [<player>] [on|off]
+    permission: etsutils.member
   rank:
     description: Manage ranks (permissions)
-    usage: /<command> (list|<player>|add|remove|modify) [<name>] [<rank level>] [<display name>]
+    usage: /<command> (list|<player>|add|remove|modify) [<name>] [<display name>]
+    permission: etsutils.moderator
+  get:
+    description: Get internal variables info and player data
+    usage: /<command>
+    permission: etsutils.admin
+  permissions:
+    description: Manage players permissions
+    ussage: /<command> (add|remove) <permission> <player>
+    permission: etsutils.admin
+
+permissions:
+  etsutils.*:
+    description: Wildcard perm
+    default: false
+    children:
+      etsutils.admin: true
+      etsutils.moderator: true
+      etsutils.member: true
+
+  etsutils.admin:
+    description: Access to all commands (like wildcard)
+    default: op
+    children:
+      etsutils.moderator: true
+      etsutils.member: true
+
+  etsutils.moderator:
+    description: Limited access to commands
+    default: false
+    children:
+      etsutils.member: true
+
+  etsutils.member:
+    description: Member level access to commands
+    default: not op
+
+
+  etsutils.deny:
+    description: This will deny all action
+    default: false
+
 
 
 

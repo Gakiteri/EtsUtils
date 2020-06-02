@@ -1,5 +1,6 @@
 package net.gakiteri.etsutils.commands;
 
+import net.gakiteri.etsutils.Variables;
 import net.gakiteri.etsutils.data.DataPlayer;
 import net.gakiteri.etsutils.data.Database;
 import net.gakiteri.etsutils.functions.MngDatabase;
@@ -15,6 +16,11 @@ public class CmdPlayer implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if (!Variables.defCmdPlayer) {
+            sender.sendMessage(ChatColor.RED + "This command is disabled");
+            return true;
+        }
 
         String playerName = "";
         DataPlayer dataPlayer = new DataPlayer();
@@ -33,8 +39,6 @@ public class CmdPlayer implements CommandExecutor {
 
         if (args.length == 0) {
             List<String> arguments = Arrays.asList(
-                    "<player> get balance",
-                    "<player> set balance <+|- amount>",
                     "<player> get rank",
                     "<player> set rank <rank>",
                     "<player> remove rank",
@@ -49,13 +53,6 @@ public class CmdPlayer implements CommandExecutor {
         } else if (args.length == 3) {
                 if (args[1].equals("get")) {
                     switch (args[2]) {
-                        case "balance":
-                            int balance = -1;
-                            if (Database.canConnect) {
-                                balance = dataPlayer.getBalance();
-                            }
-                            sender.sendMessage(ChatColor.GREEN + playerName + " has a balance of " + balance);
-                            break;
                         case "pvp":
                             boolean pvp = false;
                             if (Database.canConnect) {
@@ -90,14 +87,11 @@ public class CmdPlayer implements CommandExecutor {
         } else if (args.length == 4) {
             if (args[1].equals("set")) {
                 switch (args[2]) {
-                    case "balance":
-
-                        if (Database.canConnect) {
-
-                        }
-
-                        break;
                     case "pvp":
+                        if (!Variables.defCmdPvp) {
+                            sender.sendMessage(ChatColor.RED + "This action has been disabled");
+                            return true;
+                        }
                         if (args[3].equals("on") || args[3].equals("off")) {
                             if (args[3].equals("on")) {
                                 dataPlayer.setPvp(true);

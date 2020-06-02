@@ -6,11 +6,7 @@ import net.gakiteri.etsutils.data.Database;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.ArrayList;
-
-import static org.bukkit.Bukkit.getPluginManager;
-import static org.bukkit.Bukkit.getServer;
+import static org.bukkit.Bukkit.*;
 
 public class MngConfig {
 
@@ -21,12 +17,13 @@ public class MngConfig {
     public static void load() {
 
         // Defaults
-        Variables.defPlayerRank = config.getString("default-config.player.rank");
+        Variables.defPlayerRank = config.getString("player.rank");
+        Variables.defPlayerPvp = config.getBoolean("player.pvp");
 
-        Variables.defCmdBalance = config.getBoolean("default-config.commands.balance");
-        Variables.defCmdPlayer = config.getBoolean("default-config.commands.player");
-        Variables.defCmdPvp = config.getBoolean("default-config.commands.pvp");
-        Variables.defCmdRank = config.getBoolean("default-config.commands.rank");
+        Variables.defCmdPlayer = config.getBoolean("commands.player");
+        Variables.defCmdPvp = config.getBoolean("commands.pvp");
+        Variables.defCmdRank = config.getBoolean("commands.rank");
+        Variables.defCmdGet = config.getBoolean("commands.get");
 
 
         // Database
@@ -45,35 +42,52 @@ public class MngConfig {
     public BukkitRunnable loadWthDb = new BukkitRunnable() {
         @Override
         public void run() {
-            config.getMapList("default-config.ranks").forEach(set -> {
-                set.forEach((i, o) -> {
-                    ((ArrayList<String>) o).forEach(name -> {
+            config.getList("ranks").forEach(rank -> {
+                String rankName = (String) rank;
 
-                        int level = Integer.parseInt(i.toString());
+                DataRank dataRank = new DataRank();
+                dataRank.setName(rankName);
+                dataRank.setDisplay(rankName);
 
-                        DataRank dataRank = new DataRank();
-                        dataRank.setLevel(level);
-                        dataRank.setName(name.toLowerCase());
-                        dataRank.setDisplay(name);
-
-                        if (Database.canConnect) {
-                            if (!new MngDatabase().hasRank(name)) {
-                                new MngDatabase().addRank(dataRank);
-                            }
-                        }
-                    });
-                });
+                if (Database.canConnect) {
+                    if (!new MngDatabase().hasRank(rankName)) {
+                        new MngDatabase().addRank(dataRank);
+                    }
+                }
             });
-
-            if (Database.canConnect) {
-                Variables.defPlayerRankLevel = new MngDatabase().getRank(Variables.defPlayerRank).getLevel();
-            }
         }
     };
 
     /** SAVE CONFIG **/
-    public void save() {
-/*
+    public static void save() {
+
+        // Database
+        config.set("database.active", Database.active);
+        config.set("database.host", Database.host);
+        config.set("database.port", Database.port);
+        config.set("database.database", Database.database);
+        config.set("database.username", Database.username);
+        config.set("database.password", Database.password);
+
+        // Player
+        config.set("player.rank", Variables.defPlayerRank);
+        config.set("player.pvp", Variables.defPlayerPvp);
+
+        // Commands
+        config.set("commands.player", Variables.defCmdPlayer);
+        config.set("commands.pvp", Variables.defCmdPvp);
+        config.set("commands.rank", Variables.defCmdRank);
+        config.set("commands.get", Variables.defCmdGet);
+
+        // Ranks
+        if (Database.canConnect) {
+            config.set("ranks", new MngDatabase().getRankList());
+        }
+
+
+        plugin.saveConfig();
+
+        /*
         // Add players playtime
         Variables.playerData.forEach((player, dataset) -> {
             config.set("players.playtime." + player, dataset.getTime());
